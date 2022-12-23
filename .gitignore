@@ -1,0 +1,11 @@
+.env
+
+node_modules
+
+.vscode
+
+build
+
+requests
+  
+example.md
