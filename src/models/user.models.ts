@@ -13,7 +13,7 @@ export const UserModel: any = sequelize.define(
     },
     codeUser: {
       type: DataTypes.STRING,
-      unique:true
+      unique: true
     },
     name: {
       type: DataTypes.STRING,
@@ -23,8 +23,9 @@ export const UserModel: any = sequelize.define(
     },
     email: {
       type: DataTypes.STRING,
-      validate:{
-        isEmail:true
+      unique: true,
+      validate: {
+        isEmail: true
       }
     },
     password: {

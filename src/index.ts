@@ -6,7 +6,7 @@ async function main() {
     //   await sequelize.authenticate();
     //   console.log("success connection");
 
-  await sequelize.sync({ force: true });
+    await sequelize.sync({ force: true });
     app.listen(app.get("PORT"), () => {
       console.log(`Server running on port ${app.get("PORT")}`);
     });

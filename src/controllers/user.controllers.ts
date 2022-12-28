@@ -1,5 +1,38 @@
+import { compareSync, hashSync } from "bcrypt";
 import { Request, Response } from "express";
+import { expiresIn, JWT_ROUNDS, SECRET_KEY } from "../config";
 import { UserModel } from "../models/user.models";
+import jwt from "jsonwebtoken";
+
+export async function loginUser(req: Request, res: Response) {
+  const { email, password } = req.body;
+
+  UserModel.findOne({
+    where: {
+      email,
+    },
+  }).then((user: any) => {
+    if (!user) res.status(404).json({ msg: "Usuario con este correo no encontrado" });
+
+    if (!compareSync(password, user.password)) return res.status(401).json({ msg: "Contraseña incorrecta" });
+
+    const token = jwt.sign({ user }, SECRET_KEY as string, {
+      expiresIn: expiresIn,
+    });
+
+    res.json({
+      user,
+      token,
+    });
+    return
+  }
+
+  ).catch((err: any) => {
+    res.status(500).json({ msg: "error", err });
+    return;
+  });
+
+}
 
 export async function getUsers(_req: Request, res: Response) {
   try {
@@ -15,19 +48,37 @@ export async function getUsers(_req: Request, res: Response) {
 }
 
 export async function createUser(req: Request, res: Response) {
-  const { email, ...rest } = req.body;
+  const { email, password, ...rest } = req.body;
 
   try {
     const URI_REX = email.match(/^([^@]*)@/);
     const URI = URI_REX ? "@" + URI_REX[1] : null;
 
-    const newUser = await UserModel.create({
+    const passwordHash = hashSync(
+      password,
+      Number.parseInt(JWT_ROUNDS as string)
+    );
+
+    UserModel.create({
       ...rest,
       email,
+      password: passwordHash,
       uri: URI,
-    });
+    })
+      .then((user: any) => {
+        const token = jwt.sign({ user }, SECRET_KEY as string, {
+          expiresIn: expiresIn,
+        });
 
-    res.json(newUser);
+        res.json({
+          user,
+          token: token,
+        });
+      })
+      .catch((err: any) => {
+        res.status(500).json(err);
+      });
+
   } catch (error: any) {
     res.status(500).json({
       message: error.message,
@@ -35,7 +86,7 @@ export async function createUser(req: Request, res: Response) {
   }
 }
 
-export const updateUser = async (req: Request, res: Response) => {
+export async function updateUser(req: Request, res: Response) {
   const { codeUser } = req.params;
   try {
     const user = await UserModel.findOne({
