@@ -3,8 +3,8 @@ import express from "express";
 import morgan from "morgan";
 import config from "./config";
 
-import "./models/task.models";
-import "./models/user.models";
+// import "./models/task.models";
+// import "./models/user.models";
 
 import indexRoutes from "./routes/index.routes";
 import tasksRoutes from "./routes/task.routes";
