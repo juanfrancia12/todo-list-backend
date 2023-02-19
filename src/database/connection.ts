@@ -7,7 +7,7 @@ export const sequelize = new Sequelize(
   config.dbPassword as string,
   {
     host: config.dbServer as string,
-    port: config.port as number,
+    // port: config.port as number,
     dialect: "postgres",
     // pool: {
     //   max: 5,
